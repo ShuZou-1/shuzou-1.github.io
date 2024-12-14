@@ -1,490 +1,268 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="description"
-        content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos.">
-  <meta name="keywords" content="Nerfies, D-NeRF, NeRF">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Nerfies: Deformable Neural Radiance Fields</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="This is the file in demostrating SimLabel">
+    <title>SimLabel: Consistency-Guided OOD Detection</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- 引入CSS样式 -->
+    <link rel="stylesheet" href="styles.css">
+    <style>
+      /* 定义样式 */
+      .custom-text {
+          font-size: 30px; /* 设置文字大小 */
+          font-family: "Arial", sans-serif; /* 设置字体 */
+          font-weight: bold; /* 设置字体加粗（可选） */
+          color: #333; /* 设置文字颜色 */
+          text-align: center; /* 水平居中对齐 */
+          padding-top: 25px;
+      }
+      .body-text {
+          font-size: 18px; /* 设置文字大小 */
+          font-family: "Arial", sans-serif; /* 设置字体 */
+          font-weight: bold; /* 设置字体加粗（可选） */
+          color: #333; /* 设置文字颜色 */
+          padding-top: 10px;
+          text-align: center;
+      }
+      .author-text {
+          font-size: 20px; /* 设置文字大小 */
+          font-family: "Arial", sans-serif; /* 设置字体 */
+          color: #333; /* 设置文字颜色 */
+          text-align: center; /* 水平居中对齐 */
+          padding-top: 25px;
+      }
+      .tag-container {
+            text-align: center;
+            position: relative; /* 相对定位，用于设置内部元素位置 */
+            display: inline-block; /* 保证文字和标签紧凑 */
+      }
 
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
+      .tag {
+            position: absolute; /* 绝对定位，让标签浮动在文字上方 */
+            top: -10px; /* 控制标签距离文字的高度 */
+            left: 100%; /* 水平居中 */
+            transform: translateX(-50%); /* 调整标签的中心点 */
+            color: #a01818; /* 标签文字颜色 */
+            font-size: 12px; /* 标签文字大小 */
+            padding: 2px 6px; /* 标签内边距 */
+            border-radius: 4px; /* 标签圆角 */
+        }
+      .center-div {
+            font-size: 20px; /* 设置文字大小 */
+            font-family: "Arial", sans-serif; /* 设置字体 */
+            width: 100%; /* 设置宽度 */
+            margin: 0 auto; /* 水平居中 */
+            color: white;
+            padding: 0px;
+            text-align: center;
+        }
+        .line {
+            border-top: 2px solid #000000; /* 设置上边框为2px粗的红色线条 */
+            width: 95%; /* 设置线条宽度 */
+            margin: 20px auto; /* 设置上下间距，居中显示 */
+        }
+      .body-div {
+            font-family: "Arial", sans-serif; /* 设置字体 */
+            width: 90%; /* 设置宽度 */
+            margin: 0 auto; /* 水平居中 */
+            padding: 0px;
+            /* text-align: center; */
+      }
 
-    function gtag() {
-      dataLayer.push(arguments);
-    }
+      body {
+          font-family: Arial, sans-serif;
+          padding: 20px;
+      }
+      table {
+          width: 95%;
+          margin: 0 auto; /* 水平居中 */
+          border-collapse: collapse;
+          margin-bottom: 20px;
+      }
+      table, th, td {
+          border: 1px solid #ddd;
+      }
+      th, td {
+          padding: 8px 12px;
+          /* text-align: center; */
+      }
+      th {
+          background-color: #f2f2f2;
+      }
+      section {
+          padding: 10px;
+          width: 93%;
+          margin-bottom: 0px;
+          margin: 0 auto; /* 水平居中 */
+          border: 1px solid #ddd;
+          background-color: #f9f9f9;
+      }
+      section h2 {
+          color: #333;
+          
+      }
+      b {
+            color: rgb(34, 138, 218); /* 默认链接颜色 */
+            text-decoration: none; /* 去掉下划线 */
+            font-weight: bold; /* 设置字体加粗（可选） */
+      }
 
-    gtag('js', new Date());
+      a {
+            color: rgb(13, 68, 111); /* 默认链接颜色 */
+            text-decoration: none; /* 去掉下划线 */
+            font-weight: bold; /* 设置字体加粗（可选） */
+      }
+      a:hover {
+          text-decoration: underline;
+      }
 
-    gtag('config', 'G-PYVRSFMDRL');
-  </script>
-
-  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
-        rel="stylesheet">
-
-  <link rel="stylesheet" href="./static/css/bulma.min.css">
-  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
-  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
-  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
-  <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
-  <link rel="stylesheet" href="./static/css/index.css">
-  <link rel="icon" href="./static/images/favicon.svg">
-
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script defer src="./static/js/fontawesome.all.min.js"></script>
-  <script src="./static/js/bulma-carousel.min.js"></script>
-  <script src="./static/js/bulma-slider.min.js"></script>
-  <script src="./static/js/index.js"></script>
+    </style>
 </head>
 <body>
+    <!-- 主标题 -->
 
-<nav class="navbar" role="navigation" aria-label="main navigation">
-  <div class="navbar-brand">
-    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-    </a>
-  </div>
-  <div class="navbar-menu">
-    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
-      <a class="navbar-item" href="https://keunhong.com">
-      <span class="icon">
-          <i class="fas fa-home"></i>
-      </span>
-      </a>
-
-      <div class="navbar-item has-dropdown is-hoverable">
-        <a class="navbar-link">
-          More Research
-        </a>
-        <div class="navbar-dropdown">
-          <a class="navbar-item" href="https://hypernerf.github.io">
-            HyperNeRF
-          </a>
-          <a class="navbar-item" href="https://nerfies.github.io">
-            Nerfies
-          </a>
-          <a class="navbar-item" href="https://latentfusion.github.io">
-            LatentFusion
-          </a>
-          <a class="navbar-item" href="https://photoshape.github.io">
-            PhotoShape
-          </a>
+    <header>
+        <h1 class="custom-text">SimLabel: Consistency Guided OOD Detection with Pretrained Vision-Language Models</h1>
+        <br>
+        <div class="center-div">
+          <a href="https://openreview.net/profile?id=~Shu_Zou1" target="_blank">ShuZou,</a><span style="color:red"><sup>1</sup></span>
+          <a href="https://scholar.google.com/citations?user=hg_nsIcAAAAJ&hl=en" target="_blank">XinyuTian,</a><span style="color:red"><sup>1</sup></span>
+          <a href="https://scholar.google.com.hk/citations?user=2-QO-bYAAAAJ&hl=zh-CN" target="_blank">QinyuZhao,</a><span style="color:red"><sup>1</sup></span>
+          <a href="https://scholar.google.com/citations?user=qxa04lIAAAAJ&hl=en" target="_blank">ZhaoyuanYang,</a><span style="color:red"><sup>2</sup></span>
+          <a href="https://scholar.google.com.au/citations?user=Qa1DMv8AAAAJ&hl=en" target="_blank">JingZhang</a><span style="color:red"><sup>1</sup></span>
         </div>
-      </div>
-    </div>
-
-  </div>
-</nav>
-
-
-<section class="hero">
-  <div class="hero-body">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered">
-        <div class="column has-text-centered">
-          <h1 class="title is-1 publication-title">Nerfies: Deformable Neural Radiance Fields</h1>
-          <div class="is-size-5 publication-authors">
-            <span class="author-block">
-              <a href="https://keunhong.com">Keunhong Park</a><sup>1</sup>,</span>
-            <span class="author-block">
-              <a href="https://utkarshsinha.com">Utkarsh Sinha</a><sup>2</sup>,</span>
-            <span class="author-block">
-              <a href="https://jonbarron.info">Jonathan T. Barron</a><sup>2</sup>,
-            </span>
-            <span class="author-block">
-              <a href="http://sofienbouaziz.com">Sofien Bouaziz</a><sup>2</sup>,
-            </span>
-            <span class="author-block">
-              <a href="https://www.danbgoldman.com">Dan B Goldman</a><sup>2</sup>,
-            </span>
-            <span class="author-block">
-              <a href="https://homes.cs.washington.edu/~seitz/">Steven M. Seitz</a><sup>1,2</sup>,
-            </span>
-            <span class="author-block">
-              <a href="http://www.ricardomartinbrualla.com">Ricardo Martin-Brualla</a><sup>2</sup>
-            </span>
-          </div>
-
-          <div class="is-size-5 publication-authors">
-            <span class="author-block"><sup>1</sup>University of Washington,</span>
-            <span class="author-block"><sup>2</sup>Google Research</span>
-          </div>
-
-          <div class="column has-text-centered">
-            <div class="publication-links">
-              <!-- PDF Link. -->
-              <span class="link-block">
-                <a href="https://arxiv.org/pdf/2011.12948"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="fas fa-file-pdf"></i>
-                  </span>
-                  <span>Paper</span>
-                </a>
-              </span>
-              <span class="link-block">
-                <a href="https://arxiv.org/abs/2011.12948"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="ai ai-arxiv"></i>
-                  </span>
-                  <span>arXiv</span>
-                </a>
-              </span>
-              <!-- Video Link. -->
-              <span class="link-block">
-                <a href="https://www.youtube.com/watch?v=MrKrnHhk8IA"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="fab fa-youtube"></i>
-                  </span>
-                  <span>Video</span>
-                </a>
-              </span>
-              <!-- Code Link. -->
-              <span class="link-block">
-                <a href="https://github.com/google/nerfies"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="fab fa-github"></i>
-                  </span>
-                  <span>Code</span>
-                  </a>
-              </span>
-              <!-- Dataset Link. -->
-              <span class="link-block">
-                <a href="https://github.com/google/nerfies/releases/tag/0.1"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="far fa-images"></i>
-                  </span>
-                  <span>Data</span>
-                  </a>
-            </div>
-
-          </div>
+        <div class="body-div">
+          <h2 class="body-text">
+          1.The Australian National University     2.GE Research</h2>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="hero teaser">
-  <div class="container is-max-desktop">
-    <div class="hero-body">
-      <video id="teaser" autoplay muted loop playsinline height="100%">
-        <source src="./static/videos/teaser.mp4"
-                type="video/mp4">
-      </video>
-      <h2 class="subtitle has-text-centered">
-        <span class="dnerf">Nerfies</span> turns selfie videos from your phone into
-        free-viewpoint
-        portraits.
-      </h2>
-    </div>
-  </div>
-</section>
 
 
-<section class="hero is-light is-small">
-  <div class="hero-body">
-    <div class="container">
-      <div id="results-carousel" class="carousel results-carousel">
-        <div class="item item-steve">
-          <video poster="" id="steve" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/steve.mp4"
-                    type="video/mp4">
-          </video>
+        <div class="line"></div>
+        <div class="body-div">
+          <h2 class="body-text">
+          This is the demostration page for TCSVT sumbission: SimLabel: Consistency Guided OOD Detection with Pretrained Vision-Language Models, a consistency-based method
+          aiming on enhancing zero-shot OOD detection task with pre-trained Vision-Language models.  We hope you could enjoy our demonstartion and hope
+          this page makes it easy for you to understand the paper.</h2>
         </div>
-        <div class="item item-chair-tp">
-          <video poster="" id="chair-tp" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/chair-tp.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-shiba">
-          <video poster="" id="shiba" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/shiba.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-fullbody">
-          <video poster="" id="fullbody" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/fullbody.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-blueshirt">
-          <video poster="" id="blueshirt" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/blueshirt.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-mask">
-          <video poster="" id="mask" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/mask.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-coffee">
-          <video poster="" id="coffee" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/coffee.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-toby">
-          <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/toby2.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+        <br>
+        <div class="line"></div>
 
+    </header>
 
-<section class="section">
-  <div class="container is-max-desktop">
-    <!-- Abstract. -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Abstract</h2>
-        <div class="content has-text-justified">
-          <p>
-            We present the first method capable of photorealistically reconstructing a non-rigidly
-            deforming scene using photos/videos captured casually from mobile phones.
-          </p>
-          <p>
-            Our approach augments neural radiance fields
-            (NeRF) by optimizing an
-            additional continuous volumetric deformation field that warps each observed point into a
-            canonical 5D NeRF.
-            We observe that these NeRF-like deformation fields are prone to local minima, and
-            propose a coarse-to-fine optimization method for coordinate-based models that allows for
-            more robust optimization.
-            By adapting principles from geometry processing and physical simulation to NeRF-like
-            models, we propose an elastic regularization of the deformation field that further
-            improves robustness.
-          </p>
-          <p>
-            We show that <span class="dnerf">Nerfies</span> can turn casually captured selfie
-            photos/videos into deformable NeRF
-            models that allow for photorealistic renderings of the subject from arbitrary
-            viewpoints, which we dub <i>"nerfies"</i>. We evaluate our method by collecting data
-            using a
-            rig with two mobile phones that take time-synchronized photos, yielding train/validation
-            images of the same pose at different viewpoints. We show that our method faithfully
-            reconstructs non-rigidly deforming scenes and reproduces unseen views with high
-            fidelity.
-          </p>
-        </div>
-      </div>
-    </div>
-    <!--/ Abstract. -->
+    <!-- 主内容区域 -->
+    <main>
+      <!-- 表格 -->
+      <table>
+          <thead>
+              <tr>
+                  <th>Sections</th>
+              </tr>
+          </thead>
+          <tbody>
+              <tr>
+                <td><a href="https://github.com/ShuZou-1/SimLabel/tree/main" target="_blank">Project Link</a></td>
+              </tr>              
+              <tr>
+                <td><a href="#section0">Demonstartion of how SimLabel Correct MCM  </a></td>
+                </tr>
+              <tr>
+                  <td><a href="#section1">Preliminary</a></td>
+              </tr>
+              <tr>
+                  <td><a href="#section2">Motivation</a></td>
+              </tr>
+              <tr>
+                <td><a href="#section3">Similar Class Generation</a></td>
+             </tr>
+              <tr>
+                  <td><a href="#section4">Overview of Pipeline</a></td>
+              </tr>
+              <tr>
+                <td><a href="#section5">Score Design</a></td>
+            </tr>              
+            <tr>
+                <td><a href="#section6">Experiment Details</a></td>
+            </tr>   
+            <tr>
+                <td><a href="#section7">Reference</a></td>
+            </tr>               
+          </tbody>
+      </table>
+  
+      <section id="section0">
+        <h2>Demostration of how SimLabel Correct Prediction</h2>
+        <p> We presents this figure demostrating two practical examples illustrating how our proposed SimLabel score improves OOD detection compared to the MCM baseline. In these examples, SimLabel successfully identifies the OOD images by leveraging their poor consistency with the similar classes:</p>
+        <img src="demostration.png" alt="示例图片" width="520" height="480"/>
 
-    <!-- Paper video. -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Video</h2>
-        <div class="publication-video">
-          <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&amp;showinfo=0"
-                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-        </div>
-      </div>
-    </div>
-    <!--/ Paper video. -->
-  </div>
-</section>
-
-
-<section class="section">
-  <div class="container is-max-desktop">
-
-    <div class="columns is-centered">
-
-      <!-- Visual Effects. -->
-      <div class="column">
-        <div class="content">
-          <h2 class="title is-3">Visual Effects</h2>
-          <p>
-            Using <i>nerfies</i> you can create fun visual effects. This Dolly zoom effect
-            would be impossible without nerfies since it would require going through a wall.
-          </p>
-          <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/dollyzoom-stacked.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-      </div>
-      <!--/ Visual Effects. -->
-
-      <!-- Matting. -->
-      <div class="column">
-        <h2 class="title is-3">Matting</h2>
-        <div class="columns is-centered">
-          <div class="column content">
-            <p>
-              As a byproduct of our method, we can also solve the matting problem by ignoring
-              samples that fall outside of a bounding box during rendering.
+      </section>
+      <!-- Section 1 -->
+      <section id="section1">
+        <h2>Preliminary</h2>
+        <img src="prelimilaries.png" alt="示例图片" width="520" height="440"/>
+        
+      </section>
+  
+      <!-- Section 2 -->
+      <section id="section2">
+          <h2>Motivation</h2>
+          <p>This study is motivated by the identification of a critical yet often overlooked issue: the ID image-text similarity score serves as an useful indicator in explainingthe intrinsic connections among different classes. We firstly show a simple while intuitive example for how using consistency demostrating the motivation:
             </p>
-            <video id="matting-video" controls playsinline height="100%">
-              <source src="./static/videos/matting.mp4"
-                      type="video/mp4">
-            </video>
-          </div>
-
-        </div>
-      </div>
-    </div>
-    <!--/ Matting. -->
-
-    <!-- Animation. -->
-    <div class="columns is-centered">
-      <div class="column is-full-width">
-        <h2 class="title is-3">Animation</h2>
-
-        <!-- Interpolating. -->
-        <h3 class="title is-4">Interpolating states</h3>
-        <div class="content has-text-justified">
-          <p>
-            We can also animate the scene by interpolating the deformation latent codes of two input
-            frames. Use the slider here to linearly interpolate between the left frame and the right
-            frame.
-          </p>
-        </div>
-        <div class="columns is-vcentered interpolation-panel">
-          <div class="column is-3 has-text-centered">
-            <img src="./static/images/interpolate_start.jpg"
-                 class="interpolation-image"
-                 alt="Interpolate start reference image."/>
-            <p>Start Frame</p>
-          </div>
-          <div class="column interpolation-video-column">
-            <div id="interpolation-image-wrapper">
-              Loading...
-            </div>
-            <input class="slider is-fullwidth is-large is-info"
-                   id="interpolation-slider"
-                   step="1" min="0" max="100" value="0" type="range">
-          </div>
-          <div class="column is-3 has-text-centered">
-            <img src="./static/images/interpolate_end.jpg"
-                 class="interpolation-image"
-                 alt="Interpolation end reference image."/>
-            <p class="is-bold">End Frame</p>
-          </div>
-        </div>
-        <br/>
-        <!--/ Interpolating. -->
-
-        <!-- Re-rendering. -->
-        <h3 class="title is-4">Re-rendering the input video</h3>
-        <div class="content has-text-justified">
-          <p>
-            Using <span class="dnerf">Nerfies</span>, you can re-render a video from a novel
-            viewpoint such as a stabilized camera by playing back the training deformations.
-          </p>
-        </div>
-        <div class="content has-text-centered">
-          <video id="replay-video"
-                 controls
-                 muted
-                 preload
-                 playsinline
-                 width="75%">
-            <source src="./static/videos/replay.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <!--/ Re-rendering. -->
-
-      </div>
-    </div>
-    <!--/ Animation. -->
+            <img src="consistency_OOD_demo.png" alt="示例图片" width="520" height="250"/>
+            <p> Given ID (top) and OOD (bottom) images which are predicted as the same class by the baseline method, ID images show consistent higher similarity to the set of semantically similar ID classes than OOD images. </p>
+            <p>
+            In order to dig the existence of similar classes, we also design a
+            straightforward experiment to explore the existence of similar classes. Given a batch of images from ID dataset where their ground-truth are all the same, we calculate the average similarity between the images and each text label.The sorted similarity distribution is visualized as following: </p>
+            <img src="motivation_longtail.png" alt="示例图片" width="520" height="350"/>
+            <p>where they generally exhibit high similarity to a small subset of ID labels, including but not limited to the ground truth label.This finding underscores the presence of similar classes, highlighting inherent connections among ID labels.</p>
+            
+      </section>
+  
+      <!-- Section 3 -->
 
 
-    <!-- Concurrent Work. -->
-    <div class="columns is-centered">
-      <div class="column is-full-width">
-        <h2 class="title is-3">Related Links</h2>
+      <section id="section3">
+        <h2>Similar Classes Generation</h2>
+        <ol>
+            <li>Generation with Class-Hierarchy</li><img src="hierarchy.png" alt="示例图片" width="450" height="300"/>
+            <li>Generation with LLMs (GPT-4)</li> 
+            <li>Generation with image-text alignment</li>
+            <img src="algorithm.png" alt="示例图片" width="450" height="380"/>
+        </ol>
+        Here we provide examples in similar classes generated by LLM and image-text alignment.
+        <img src="example.png" alt="示例图片" width="520" height="170"/>
+       </section>
 
-        <div class="content has-text-justified">
-          <p>
-            There's a lot of excellent work that was introduced around the same time as ours.
-          </p>
-          <p>
-            <a href="https://arxiv.org/abs/2104.09125">Progressive Encoding for Neural Optimization</a> introduces an idea similar to our windowed position encoding for coarse-to-fine optimization.
-          </p>
-          <p>
-            <a href="https://www.albertpumarola.com/research/D-NeRF/index.html">D-NeRF</a> and <a href="https://gvv.mpi-inf.mpg.de/projects/nonrigid_nerf/">NR-NeRF</a>
-            both use deformation fields to model non-rigid scenes.
-          </p>
-          <p>
-            Some works model videos with a NeRF by directly modulating the density, such as <a href="https://video-nerf.github.io/">Video-NeRF</a>, <a href="https://www.cs.cornell.edu/~zl548/NSFF/">NSFF</a>, and <a href="https://neural-3d-video.github.io/">DyNeRF</a>
-          </p>
-          <p>
-            There are probably many more by the time you are reading this. Check out <a href="https://dellaert.github.io/NeRF/">Frank Dellart's survey on recent NeRF papers</a>, and <a href="https://github.com/yenchenlin/awesome-NeRF">Yen-Chen Lin's curated list of NeRF papers</a>.
-          </p>
-        </div>
-      </div>
-    </div>
-    <!--/ Concurrent Work. -->
+       <section id="section4">
+        <h2>Overview pipeline of SimLabel</h2>
+        <img src="pipeline.png" alt="示例图片" width="520" height="190"/>
+    </section>
+    <section id="section5">
+        <h2>Score Design</h2>
+        <p>Given a image and corresponding ID similar classes, we can obtain the affinity with</p>
+        <img src="https://github.com/ShuZou-1/SimLabel/blob/main/images/affinity.png" alt="示例图片" width="520" height="70"/>
+        <p>where the "||" represents the cardinality of similar classes and the alpha represents the hyper-parameter that determines the weight of image&similar-classes-label similarity.Motivated by the assumption in[2] that the maximum similarity of ID image-text alignment shows advantages over OOD samples, we formally define our SimLabel score with the maximum matching score as:</p>
+        <img src="softmax.png" alt="示例图片" width="520" height="100"/>
+    </section>
 
-  </div>
-</section>
+    <section id="section6">
+        <h2>Experiment Details</h2>
+        <p>We evaluate our method on the ImageNet-1k OOD benchmark and primarily compare it with the MCM method due to its promising and consistent performance in the zero-shot OOD detection task. The ImageNet-1k OOD benchmark is a widely used performance validation method that uses the large-scale visual dataset ImageNet-1k as ID data and iNaturalist, SUN, Places, and Texture as OOD data, covering a diverse range of scenes and semantics. Each OOD dataset has no classes that overlap with the ID dataset.In our experiments, we adopt CLIP[1] as the target pre-trained model, which is one of the most popular and publicly available VLMs.For selecting similar classes in SimLabel-H, we follow the construction of hierarchical label sets in[3]to obtain accurate super-classes for the ImageNet labels and generate similar classes.The LLMs we prompt for SimLabel-L is GPT-4.n generating similar classes for SimLabel-L and SimLabel-I score, we select the quantity of similar classes k=6.Additionally, following the theoretical analysis and setting in[2], we set temperature tau = 1. We set the weight of image \& similar-classes-label alpha = 1. All experiments are conducted on a single NVIDIA 4090 GPU.</p>
+    </section>    
 
+    <section id="section7">
+        <h2>Reference</h2>
+        <ol>
+            <li>Radford A, Kim J W, Hallacy C, et al. Learning transferable visual models from natural language supervision[C]//International conference on machine learning. PMLR, 2021: 8748-8763.</li>
+            <li>Ming Y, Cai Z, Gu J, et al. Delving into out-of-distribution detection with vision-language representations[J]. Advances in neural information processing systems, 2022, 35: 35087-35102.</li> 
+            <li>Novack Z, McAuley J, Lipton Z C, et al. Chils: Zero-shot image classification with hierarchical label sets[C]//International Conference on Machine Learning. PMLR, 2023: 26342-26362.</li>
+        </ol>     
+    </section>  
 
-<section class="section" id="BibTeX">
-  <div class="container is-max-desktop content">
-    <h2 class="title">BibTeX</h2>
-    <pre><code>@article{park2021nerfies,
-  author    = {Park, Keunhong and Sinha, Utkarsh and Barron, Jonathan T. and Bouaziz, Sofien and Goldman, Dan B and Seitz, Steven M. and Martin-Brualla, Ricardo},
-  title     = {Nerfies: Deformable Neural Radiance Fields},
-  journal   = {ICCV},
-  year      = {2021},
-}</code></pre>
-  </div>
-</section>
+    </main>
 
 
-<footer class="footer">
-  <div class="container">
-    <div class="content has-text-centered">
-      <a class="icon-link"
-         href="./static/videos/nerfies_paper.pdf">
-        <i class="fas fa-file-pdf"></i>
-      </a>
-      <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
-        <i class="fab fa-github"></i>
-      </a>
-    </div>
-    <div class="columns is-centered">
-      <div class="column is-8">
-        <div class="content">
-          <p>
-            This website is licensed under a <a rel="license"
-                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
-            Commons Attribution-ShareAlike 4.0 International License</a>.
-          </p>
-          <p>
-            This means you are free to borrow the <a
-              href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website,
-            we just ask that you link back to this page in the footer.
-            Please remember to remove the analytics code included in the header of the website which
-            you do not want on your website.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</footer>
-
+    <script src="script.js"></script>
 </body>
 </html>
